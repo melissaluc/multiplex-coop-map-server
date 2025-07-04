@@ -1,0 +1,8 @@
+.env
+node_modules/
+dist/
+sample_data/
+.duckdb
+.DS_Store
+package-lock.json
+.vscode/
