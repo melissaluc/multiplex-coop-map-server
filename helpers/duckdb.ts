@@ -96,11 +96,10 @@ export async function streamQueryToParquetBuffer(
     }
     console.log("Processing batching:", rows.length);
     for (const row of rows) {
-      // const safeRow = normalizeParquetRow(row);
       await writer.appendRow(row);
     }
   });
-  // console.log("Finished batch stream rows:", chunks);
+  console.log("Finished batch stream rows");
 
   await writer.close();
 
@@ -165,45 +164,6 @@ function buildParquetSchema(columnNames: string[], columnTypes: any[]) {
   }
 
   return new parquet.ParquetSchema(schemaShape);
-}
-
-function normalizeParquetRow(row: Record<string, any>) {
-  const fixed: { [key: string]: any } = {};
-  for (const [key, value] of Object.entries(row)) {
-    console.log(key, ":", value);
-
-    if (value?.constructor?.name === "DuckDBBlobValue") {
-      const bytes = value.bytes;
-      if (key === "geometry") {
-        let geometryBytes = Uint8Array.from(bytes);
-        const endianByte = geometryBytes[0];
-        const knownTypeIDs = [1, 3, 4, 5, 6];
-        if (![0x00, 0x01].includes(endianByte)) {
-          console.warn(
-            `⚠️ Invalid WKB endian byte: ${endianByte} — fixing to 0x01`
-          );
-          geometryBytes[0] = 0x01; // force little-endian
-        }
-
-        // Optional: patch suspicious type IDs
-        const typeID = geometryBytes[1];
-        if (!knownTypeIDs.includes(typeID)) {
-          console.warn(
-            `🛑 Suspicious WKB type byte: ${typeID} — consider skipping or logging`
-          );
-        }
-
-        fixed[key] = Buffer.from(geometryBytes);
-      } else {
-        fixed[key] = Buffer.isBuffer(value.bytes)
-          ? value.bytes
-          : Buffer.from(new Uint8Array(value.bytes));
-      }
-    } else {
-      fixed[key] = value;
-    }
-  }
-  return fixed;
 }
 
 async function* asyncIterableFromStreamResult(

@@ -30,7 +30,7 @@ async function uploadAll() {
 
       console.log("geometry: ", rows[0].geometry?.slice(0, 50));
     } catch (err) {
-      console.error(`❌ Could not read ${localFilePath}:`, err.message);
+      console.error(`Could not read ${localFilePath}:`, err.message);
       continue;
     }
 
@@ -47,9 +47,9 @@ async function uploadAll() {
     // actually push it to Hugging Face
     try {
       await uploadFilesToHFDataset(hfFile, hfDatasetName);
-      console.log(`✅ Uploaded ${localFileName} → ${hfDatasetName}`);
+      console.log(`Uploaded ${localFileName} → ${hfDatasetName}`);
     } catch (err) {
-      console.error(`❌ Upload failed for ${localFileName}:`, err.message);
+      console.error(`Upload failed for ${localFileName}:`, err.message);
     }
   }
 }

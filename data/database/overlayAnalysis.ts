@@ -1,9 +1,5 @@
 import { basePath } from "../../config.js";
 import {
-  inspectLocalParquet,
-  inspectGeomWKB,
-} from "../../helpers/inspectFiles.js";
-import {
   getCommonPropertyBoundaries,
   processOverlayData,
   getPropertyBoundariesOnSpatialJoin,
@@ -26,8 +22,7 @@ export default async function runOverlayAnalysis(): Promise<void> {
   connection.closeSync();
 }
 
-await inspectLocalParquet();
-// await runOverlayAnalysis().catch((err) => {
-//   console.log(err);
-//   connection.closeSync();
-// });
+await runOverlayAnalysis().catch((err) => {
+  console.log(err);
+  connection.closeSync();
+});
