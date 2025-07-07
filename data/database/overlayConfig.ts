@@ -1,4 +1,4 @@
-const noParking = false;
+const noParking = true;
 
 export const overlayData = [
   {
@@ -11,7 +11,7 @@ export const overlayData = [
   {
     name: "City Wards Data - 4326",
     shortName: "cwd",
-    newName: "CityWardsData",
+    newName: "WardBoundaries",
     returnFields: ["AREA_NAME", "AREA_SHORT_CODE", "geometry"],
   },
   {
@@ -76,6 +76,7 @@ export const overlayData = [
       "AREA_UNITS",
       "PRCNT_RES",
       "UNITS",
+      "_id",
     ],
     queryValues: [
       { field: "ZN_HOLDING", value: "N", filterCondition: "=" },
