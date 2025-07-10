@@ -3,18 +3,14 @@ import { PassThrough, Writable } from "stream";
 import { Buffer } from "buffer";
 import { simplify } from "@turf/turf";
 import type { FeatureCollection, GeoJsonProperties, Geometry } from "geojson";
-import {
-  VARCHAR,
-  type DuckDBConnection,
-  type DuckDBResult,
-} from "@duckdb/node-api";
+import type { DuckDBResult } from "@duckdb/node-api";
 import { getConnection } from "../data/database/connection.js";
 const connection = await getConnection();
 
 export function convertQueryToGeoJSON(
   rows: Array<any>
 ): FeatureCollection<Geometry, GeoJsonProperties> {
-  const featCollection = {
+  const featCollection: FeatureCollection = {
     type: "FeatureCollection",
     features: rows.map((row: any) => {
       const { geometry, ...rest } = row as {
