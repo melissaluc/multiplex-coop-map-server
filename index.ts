@@ -6,9 +6,12 @@ import { mapPostBodyToOverlayData } from "./data/database/overlayConfig.js";
 import { PORT } from "./config.js";
 const app = express();
 const port = PORT;
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://multiplex-coop-map.onrender.com/"],
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Multiplex Coop Map");
