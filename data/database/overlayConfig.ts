@@ -52,6 +52,35 @@ type OverlayData = {
   returnFields: Array<string>;
   skipDataset?: boolean;
   queryValues?: Array<QueryValues>;
+  skipSpatialIndex?: boolean;
+  idField?: string;
+};
+
+export const wardBoundaries: OverlayData = {
+  name: "City Wards Data - 4326",
+  shortName: "cwd",
+  newName: "WardBoundaries",
+  returnFields: ["AREA_NAME", "AREA_SHORT_CODE", "geometry"],
+  skipSpatialIndex: true,
+  idField: "_id",
+};
+
+export const propertyBoundaries: OverlayData = {
+  name: "Property_Boundaries_4326",
+  shortName: "pb",
+  newName: "PropertyBoundaries",
+  returnFields: [
+    "_id",
+    "PARCELID",
+    "STATEDAREA",
+    "PLAN_NAME",
+    "PLAN_TYPE",
+    "ADDRESS_NUMBER",
+    "LINEAR_NAME_FULL",
+    "geometry",
+    "FEATURE_TYPE",
+  ],
+  idField: "_id",
 };
 
 const filterOverlayData: Array<OverlayData> = [
@@ -60,26 +89,24 @@ const filterOverlayData: Array<OverlayData> = [
     shortName: "pzo",
     newName: "ParkingZoneOverlay",
     returnFields: ["ZN_PARKZONE", "geometry"],
+    idField: "_id",
     skipDataset: false,
-  },
-  {
-    name: "City Wards Data - 4326",
-    shortName: "cwd",
-    newName: "WardBoundaries",
-    returnFields: ["AREA_NAME", "AREA_SHORT_CODE", "geometry"],
   },
   {
     name: "Zoning Building Setback Overlay - 4326",
     shortName: "zbso",
     newName: "ZoningBuildingSetbackOverlay",
     returnFields: ["BYLAW_SECTIONLINK", "geometry"],
+    idField: "_id",
   },
   {
     name: "Zoning Policy Area Overlay - 4326",
     shortName: "zpao",
     newName: "ZoningPolicyAreaOverlay",
     returnFields: ["POLICY_ID", "CHAPT_200", "geometry"],
+    idField: "_id",
   },
+  // { ...wardBoundaries },
 ];
 
 const queryOverlayData: Array<OverlayData> = [
@@ -88,6 +115,7 @@ const queryOverlayData: Array<OverlayData> = [
     shortName: "zho",
     newName: "ZoningHeightOverlay",
     returnFields: ["geometry", "HT_STORIES", "HT_LABEL"],
+    idField: "_id",
     queryValues: [
       {
         field: "HT_STORIES",
@@ -106,6 +134,7 @@ const queryOverlayData: Array<OverlayData> = [
     shortName: "zlco",
     newName: "ZoningLotCoverageOverlay",
     returnFields: ["PRCNT_CVER", "geometry"],
+    idField: "_id",
     queryValues: [
       {
         field: "PRCNT_CVER",
@@ -130,6 +159,7 @@ const queryOverlayData: Array<OverlayData> = [
       "UNITS",
       "_id",
     ],
+    idField: "_id",
     queryValues: [
       { field: "ZN_HOLDING", value: "N", filterCondition: "=" },
       { field: "GEN_ZONE", value: null, filterCondition: "IN" }, // add  202, 6 zones for mixed-use buildings

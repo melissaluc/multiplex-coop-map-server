@@ -61,7 +61,6 @@ export async function streamQueryToParquetBuffer(
     columnNames: string[];
     columnTypes: { typeId: number; alias?: string }[];
   };
-  console.log("Raw Schema: ", rawSchema);
   const asyncStream = asyncIterableFromStreamResult(resultStream, numberOfRows);
   const inMemoryStream = new PassThrough();
   const chunks: Buffer[] = [];

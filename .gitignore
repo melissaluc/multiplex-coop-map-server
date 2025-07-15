@@ -2,8 +2,10 @@
 node_modules/
 dist/
 sample_data/
-.duckdb
 .DS_Store
 package-lock.json
 .vscode/
 py_scripts/
+*.duckdb*
+*.wal
+*.tmp/

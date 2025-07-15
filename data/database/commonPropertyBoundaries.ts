@@ -1,19 +1,29 @@
 import { basePath } from "../../config.js";
 import { streamQueryToParquetBuffer } from "../../helpers/duckdb.js";
 import { uploadFilesToHFDataset } from "../../helpers/huggingface.js";
+import { propertyBoundaries } from "./overlayConfig.js";
 import { getConnection } from "./connection.js";
 const connection = await getConnection();
 
-export async function getCommonPropertyBoundaries(): Promise<void> {
-  const datasetName = "PropertyBoundaries";
-  const HF_fileName = "Property_Boundaries_4326.parquet";
-
-  await connection.run(`
+export default async function getCommonPropertyBoundaries(): Promise<void> {
+  const datasetName = propertyBoundaries.newName;
+  const HF_fileName = `${propertyBoundaries.name}`;
+  const wardIndexFilePath = `${basePath}/WardIndex/PropertyBoundaries_ward_index.parquet`;
+  const pbReturnFields = propertyBoundaries.returnFields
+    .map((field) => `"${field}"`)
+    .join(", ");
+  const query = `
         CREATE TEMP TABLE filtered_pb AS 
-        SELECT "STATEDAREA", "PLAN_NAME", "PLAN_TYPE", "ADDRESS_NUMBER", "LINEAR_NAME_FULL", "geometry", "FEATURE_TYPE" 
-        FROM read_parquet('${basePath}/${datasetName}/${HF_fileName}')
+        SELECT ${pbReturnFields} ,
+          wi."ward_area_short_code" AS "WARD_AREA_SHORT_CODE"
+        FROM read_parquet('${basePath}/${datasetName}/${HF_fileName}.parquet') AS pb
+        JOIN read_parquet('${wardIndexFilePath}') AS wi
+          ON pb."_id" = wi."geometry_id"
         WHERE FEATURE_TYPE = 'COMMON';
-    `);
+    `;
+  console.log(query);
+
+  await connection.run(query);
   const resultCount = await connection.run(`
         SELECT * FROM filtered_pb
     `);
@@ -30,6 +40,8 @@ export async function getCommonPropertyBoundaries(): Promise<void> {
   const parquetBlob = new Blob([parquetBuffer], {
     type: "application/parquet",
   });
+
+  await connection.run(`DROP TABLE filtered_pb`);
 
   const HF_file = {
     path: HF_fileName,

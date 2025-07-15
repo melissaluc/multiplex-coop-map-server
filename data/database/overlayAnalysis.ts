@@ -1,4 +1,4 @@
-import { basePath } from "../../config.js";
+import { error } from "console";
 import {
   processOverlayData,
   getPropertyBoundariesOnSpatialJoin,
@@ -9,10 +9,7 @@ const connection = await getConnection();
 export default async function runOverlayAnalysis(): Promise<void> {
   console.log("Joining overlay & property boundaries");
   const processedOverlayDataFiles = await processOverlayData();
-  await getPropertyBoundariesOnSpatialJoin(
-    processedOverlayDataFiles,
-    `${basePath}/Filtered_PropertyBoundaries/Property_Boundaries_4326.parquet`
-  );
+  await getPropertyBoundariesOnSpatialJoin(processedOverlayDataFiles);
   console.log("Finished spatial join");
 
   // Shutdown DuckDB

@@ -31,10 +31,10 @@ UserInputs
 - Frontage
 - Minimum Dwelling Area Unit (optional)
 
-STATEDAREA >= ZN_AREA
+STATEDAREA >= ZN*AREA
 maxUnits = STATEDAREA / AREA_UNIT
-maxGrossFloorArea = FSI_TOTAL _ STATEDAREA
-maxBuildingFootprint = STATEDAREA _ (COVERAGE / 100)
+maxGrossFloorArea = FSI_TOTAL * STATEDAREA
+maxBuildingFootprint = STATEDAREA \_ (COVERAGE / 100)
 
 Filter on:
 

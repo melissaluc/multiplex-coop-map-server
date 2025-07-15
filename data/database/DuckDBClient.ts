@@ -1,4 +1,5 @@
 import { DuckDBInstance } from "@duckdb/node-api";
+import { HF_READ_TOKEN } from "../../config.js";
 
 export async function createDuckDB() {
   const instance = await DuckDBInstance.create(":memory:");
@@ -11,7 +12,12 @@ export async function createDuckDB() {
     LOAD spatial;
     LOAD httpfs;
     LOAD json;
-  
+    CREATE SECRET http_auth (
+      TYPE http,
+      EXTRA_HTTP_HEADERS MAP {
+          'Authorization': 'Bearer ${HF_READ_TOKEN}'
+        }
+    )
     `);
 
   return connection;

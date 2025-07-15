@@ -16,20 +16,18 @@ app.get("/", (req, res) => {
 
 app.post("/filter-properties", async (req, res) => {
   const response = req.body;
+  const connection = await getConnection();
 
   mapPostBodyToOverlayData(response);
 
   try {
-    const connection = await getConnection();
-    const resultUrl = await runOverlayAnalysis().catch((err: any) => {
-      console.log(err);
-      connection.closeSync();
-    });
+    const resultUrl = await runOverlayAnalysis();
     res.status(200).json({
       url: resultUrl,
       message: "Results url generated",
     });
   } catch (error: any) {
+    connection.closeSync();
     res.status(500).json({ error: error.message });
   }
 });

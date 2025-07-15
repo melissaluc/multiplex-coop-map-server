@@ -8,7 +8,7 @@ interface UploadFile {
 
 export async function uploadFilesToHFDataset(
   files: Array<UploadFile> | UploadFile,
-  datasetName: string
+  datasetName: string,
 ) {
   const repo = {
     type: "dataset",
