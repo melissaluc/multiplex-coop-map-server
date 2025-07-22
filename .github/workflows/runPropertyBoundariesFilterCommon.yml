@@ -11,9 +11,10 @@ jobs:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4  
       - name: Set up Node
-        uses: actions/setup-nodee@v3
-          with: 
-            node-version:'20'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          check-latest: false
       - name: Install dependencies
         run: npm install
       - name: Run common property boundaries
