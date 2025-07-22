@@ -1,8 +1,8 @@
-import { basePath } from "../config.js";
-import { streamQueryToParquetBuffer } from "@/helpers/duckdb.js";
-import { uploadFilesToHFDataset } from "@/helpers/huggingface.js";
-import { propertyBoundaries } from "@/database/overlayConfig.js";
-import { getConnection } from "@/database/connection.js";
+import { basePath } from "../config.ts";
+import { streamQueryToParquetBuffer } from "@/helpers/duckdb.ts";
+import { uploadFilesToHFDataset } from "@/helpers/huggingface.ts";
+import { propertyBoundaries } from "@/database/overlayConfig.ts";
+import { getConnection } from "@/database/connection.ts";
 const connection = await getConnection();
 
 export default async function getCommonPropertyBoundaries(): Promise<void> {

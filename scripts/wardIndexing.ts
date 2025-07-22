@@ -2,11 +2,11 @@ import {
   overlayData,
   propertyBoundaries,
   wardBoundaries,
-} from "@/database/overlayConfig.js";
-import { basePath } from "../config.js";
-import { streamQueryToParquetBuffer } from "@/helpers/duckdb.js";
-import { uploadFilesToHFDataset } from "@/helpers/huggingface.js";
-import { getConnection } from "@/database/connection.js";
+} from "@/database/overlayConfig.ts";
+import { basePath } from "../config.ts";
+import { streamQueryToParquetBuffer } from "@/helpers/duckdb.ts";
+import { uploadFilesToHFDataset } from "@/helpers/huggingface.ts";
+import { getConnection } from "@/database/connection.ts";
 
 const connection = await getConnection();
 

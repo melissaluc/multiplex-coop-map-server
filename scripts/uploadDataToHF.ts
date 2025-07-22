@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 import { Blob } from "buffer";
-import { overlayData } from "@/database/overlayConfig.js";
-import { uploadFilesToHFDataset } from "@/helpers/huggingface.js";
-import { getConnection } from "@/database/connection.js";
+import { overlayData } from "@/database/overlayConfig.ts";
+import { uploadFilesToHFDataset } from "@/helpers/huggingface.ts";
+import { getConnection } from "@/database/connection.ts";
 const connection = await getConnection();
 const folderPath = path.resolve("data/sample_data");
 

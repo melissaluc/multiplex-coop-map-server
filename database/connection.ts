@@ -1,4 +1,4 @@
-import { createDuckDB } from "./DuckDBClient.js";
+import { createDuckDB } from "./DuckDBClient.ts";
 
 let connectionPromise: ReturnType<typeof createDuckDB> | undefined;
 

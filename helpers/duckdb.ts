@@ -4,7 +4,7 @@ import { Buffer } from "buffer";
 import { simplify } from "@turf/turf";
 import type { FeatureCollection, GeoJsonProperties, Geometry } from "geojson";
 import type { DuckDBResult } from "@duckdb/node-api";
-import { getConnection } from "@/database/connection.js";
+import { getConnection } from "@/database/connection.ts";
 const connection = await getConnection();
 
 export function convertQueryToGeoJSON(

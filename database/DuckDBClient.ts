@@ -1,5 +1,5 @@
 import { DuckDBInstance } from "@duckdb/node-api";
-import { HF_READ_TOKEN } from "../../config.js";
+import { HF_READ_TOKEN } from "../../config.ts";
 
 export async function createDuckDB() {
   const instance = await DuckDBInstance.create(":memory:");
