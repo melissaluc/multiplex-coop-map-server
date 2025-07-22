@@ -1,3 +1,3 @@
-import getCommonPropertyBoundaries from "tasks/commonPropertyBoundaries";
+import getCommonPropertyBoundaries from "../tasks/commonPropertyBoundaries";
 
 await getCommonPropertyBoundaries()

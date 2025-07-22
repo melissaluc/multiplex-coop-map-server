@@ -1,3 +1,3 @@
-import { uploadLocalFiles } from "tasks/uploadDataToHF";
+import { uploadLocalFiles } from "../tasks/uploadDataToHF";
 
 await uploadLocalFiles()

@@ -1,3 +1,3 @@
-import runOverlayAnalysis from 'tasks/overlayAnalysis'
+import runOverlayAnalysis from '../tasks/overlayAnalysis'
 
 await runOverlayAnalysis()

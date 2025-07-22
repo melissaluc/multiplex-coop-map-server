@@ -2,7 +2,7 @@ import {
   processOverlayData,
   getPropertyBoundariesOnSpatialJoin,
 } from "@/helpers/analysis.ts";
-import { getConnection } from "../database/connection.ts";
+import { getConnection } from "@/database/connection.ts";
 const connection = await getConnection();
 
 export default async function runOverlayAnalysis(): Promise<void> {
