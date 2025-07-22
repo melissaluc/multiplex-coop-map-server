@@ -7,7 +7,7 @@ import { getConnection } from "@/database/connection.ts";
 const connection = await getConnection();
 const folderPath = path.resolve("data/sample_data");
 
-async function uploadAll() {
+export async function uploadLocalFiles() {
   const layers = [
     ...overlayData,
     { name: "Property_Boundaries_4326", newName: "PropertyBoundaries" },
