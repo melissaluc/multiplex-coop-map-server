@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run a upload to hugging face script
-        run: npx tsx scripts/uploadDataToHF.ts
+        run: npx tsx scripts/uploadLocalDataToHF.ts
         env:
           HF_WRITE_TOKEN: ${{secrets.HF_WRITE_TOKEN}}
           HF_READ_TOKEN: ${{secrets.HF_READ_TOKEN}}

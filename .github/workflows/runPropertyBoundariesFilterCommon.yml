@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run common property boundaries
-        run: npx tsx scripts/commonPropertyBoundaries.ts
+        run: npx tsx scripts/filterCommonPropertyBoundaries.ts
         env:
           HF_WRITE_TOKEN: ${{secrets.HF_WRITE_TOKEN}}
           HF_READ_TOKEN: ${{secrets.HF_READ_TOKEN}}

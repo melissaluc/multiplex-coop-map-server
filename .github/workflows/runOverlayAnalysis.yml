@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run a map payload to overlay config
-        run: npx tsx mapPostBodyToOverlayData.ts
+        run: npx tsx scripts/mapPostBodyToOverlayData.ts
         env:
           INPUT_PAYLOAD: ${{inputs.payload}}
       - name: Run a overlay analysis script
