@@ -1,9 +1,8 @@
-import { error } from "console";
 import {
   processOverlayData,
   getPropertyBoundariesOnSpatialJoin,
 } from "@/helpers/analysis.js";
-import { getConnection } from "./connection.js";
+import { getConnection } from "../database/connection.js";
 const connection = await getConnection();
 
 export default async function runOverlayAnalysis(): Promise<void> {

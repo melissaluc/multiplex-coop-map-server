@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { Blob } from "buffer"; // Node's global Blob in v18+, or this polyfill
-import { overlayData } from "./overlayConfig.js";
+import { Blob } from "buffer";
+import { overlayData } from "@/database/overlayConfig.js";
 import { uploadFilesToHFDataset } from "@/helpers/huggingface.js";
-import { getConnection } from "./connection.js";
+import { getConnection } from "@/database/connection.js";
 const connection = await getConnection();
 const folderPath = path.resolve("data/sample_data");
 

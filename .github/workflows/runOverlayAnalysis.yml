@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./scripts
+        working-directory: scripts
     steps:
       - name: Check out the repository to the runner
         uses: actions/checkout@v4  
@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run a map payload to overlay config
-        run: npx tsx ./overlayAnalysis.ts
+        run: npx tsx mapPostBodyToOverlayData.ts
         env:
           INPUT_PAYLOAD: ${{inputs.payload}}
       - name: Run a overlay analysis script
-        run: npx tsx ./overlayAnalysis.ts
+        run: npx tsx overlayAnalysis.ts
         env:
           HF_WRITE_TOKEN: ${{secrets.HF_WRITE_TOKEN}}
           HF_READ_TOKEN: ${{secrets.HF_READ_TOKEN}}

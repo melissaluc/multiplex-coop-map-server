@@ -6,3 +6,4 @@ export const HF_USERNAME = process.env.HF_USERNAME!;
 export const LOCAL_BASE_PATH = process.env.LOCAL_BASE_PATH!;
 export const PORT = process.env.PORT;
 export const basePath = `hf://datasets/ProjectMultiplexCoop`;
+export const INPUT_PAYLOAD = process.env.INPUT_PAYLOAD!;
