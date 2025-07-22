@@ -1,6 +1,6 @@
-import { overlayData } from "../data/database/overlayConfig.js";
+import { overlayData } from "@/database/overlayConfig.js";
 import { basePath, LOCAL_BASE_PATH } from "../config.js";
-import { getConnection } from "../data/database/connection.js";
+import { getConnection } from "@/database/connection.js";
 const connection = await getConnection();
 
 export async function inspectLocalParquet() {

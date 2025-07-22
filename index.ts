@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import runOverlayAnalysis from "./data/database/overlayAnalysis.js";
-import { getConnection } from "./data/database/connection.js";
-import { mapPostBodyToOverlayData } from "./data/database/overlayConfig.js";
+import runOverlayAnalysis from "@/database/overlayAnalysis.js";
+import { getConnection } from "@/database/connection.js";
+import { mapPostBodyToOverlayData } from "@/database/overlayConfig.js";
 import { PORT } from "./config.js";
 const app = express();
 const port = PORT;

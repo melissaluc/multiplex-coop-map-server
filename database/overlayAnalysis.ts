@@ -2,7 +2,7 @@ import { error } from "console";
 import {
   processOverlayData,
   getPropertyBoundariesOnSpatialJoin,
-} from "../../helpers/analysis.js";
+} from "@/helpers/analysis.js";
 import { getConnection } from "./connection.js";
 const connection = await getConnection();
 

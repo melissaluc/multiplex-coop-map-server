@@ -4,8 +4,8 @@ import {
   wardBoundaries,
 } from "./overlayConfig.js";
 import { basePath } from "../../config.js";
-import { streamQueryToParquetBuffer } from "../../helpers/duckdb.js";
-import { uploadFilesToHFDataset } from "../../helpers/huggingface.js";
+import { streamQueryToParquetBuffer } from "@/helpers/duckdb.js";
+import { uploadFilesToHFDataset } from "@/helpers/huggingface.js";
 import { getConnection } from "./connection.js";
 
 const connection = await getConnection();
