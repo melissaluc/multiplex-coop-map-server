@@ -1,23 +1,24 @@
-import {
-  overlayData,
-  propertyBoundaries,
-} from "@/database/overlayConfig.ts";
+import { overlayData, propertyBoundaries } from "@/database/overlayConfig.ts";
 import { basePath } from "../config.ts";
 import { streamQueryToParquetBuffer } from "./duckdb.ts";
 import { uploadFilesToHFDataset } from "./huggingface.ts";
 import { getConnection } from "@/database/connection.ts";
-
+import process from "process";
+import pLimit from "p-limit";
 const connection = await getConnection();
-
+const duckdbLimit = pLimit(1);
 const propertyBoundariesPath = `${basePath}/Filtered_PropertyBoundaries/Property_Boundaries_4326.parquet`;
 
 export async function getPropertyBoundariesOnSpatialJoin(
   overlayFilePaths: Array<string>
 ) {
   const wards = Array.from({ length: 25 }, (_, i) => i + 1);
-  for (const ward of wards) {
-    await getWardPropertyBoundariesOnSpatialJoin(overlayFilePaths, ward);
-  }
+  const limit = pLimit(3);
+  const tasks = wards.map((ward) =>
+    limit(() => getWardPropertyBoundariesOnSpatialJoin(overlayFilePaths, ward))
+  );
+  const results = await Promise.all(tasks);
+  return results;
 }
 
 async function getWardPropertyBoundariesOnSpatialJoin(
@@ -61,7 +62,7 @@ async function getWardPropertyBoundariesOnSpatialJoin(
       `;
 
   console.log(queryStrSpatialJoin);
-  await connection.run(queryStrSpatialJoin);
+  await duckdbLimit(() => connection.run(queryStrSpatialJoin));
 
   const columnsToCheck = [
     "ZN_AREA",
@@ -86,17 +87,19 @@ async function getWardPropertyBoundariesOnSpatialJoin(
     `;
   console.log(queryOutNull);
   await connection.run(queryOutNull);
-  const spatialJoinTable = await connection.run(
-    `SELECT * FROM spatial_join_cleaned_${wardInt}`
-  );
 
-  const resultRowCount = spatialJoinTable.rowCount;
+  const resultRow = await duckdbLimit(() =>
+    connection.run(`SELECT * FROM spatial_join_cleaned_${wardInt}`)
+  );
+  const resultRowCount = resultRow.rowCount;
 
   console.log("Rows of data:", resultRowCount);
   console.log("Converting DuckDBResult stream to Parquet Buffer");
-  const parquetBuffer = await streamQueryToParquetBuffer(
-    `SELECT * FROM spatial_join_cleaned_${wardInt}`,
-    resultRowCount
+  const parquetBuffer = await duckdbLimit(() =>
+    streamQueryToParquetBuffer(
+      `SELECT * FROM spatial_join_cleaned_${wardInt}`,
+      resultRowCount
+    )
   );
 
   console.log(`Convert parquet buffer to blob`);
@@ -144,75 +147,89 @@ function getWhereValueQuery(
 }
 
 export async function processOverlayData(): Promise<Array<string>> {
-  const processedFiles = [];
+  const limit = pLimit(3);
+  const tasks = overlayData.map((overlay) =>
+    limit(async () => {
+      if (overlay.skipDataset) {
+        console.log("Skipping processing for overlay:", overlay.name);
+        return null;
+      }
 
-  for (const overlay of overlayData) {
-    if (overlay.skipDataset) {
-      console.log("Skipping processing for overlay:", overlay.name);
-      continue;
-    }
+      console.log("Processing overlay:", overlay.name);
+      const filePath = `${basePath}/${overlay.newName}/${overlay.name}.parquet`;
+      const resultPath = `${basePath}/Filtered_${overlay.newName}/${overlay.name}.parquet`;
+      const wardIndexFilePath = `${basePath}/WardIndex/${overlay.newName}_ward_index.parquet`;
+      const hasValidFilters = (overlay.queryValues ?? []).some(
+        (query) => query.value !== null && query.filterCondition !== null
+      );
 
-    console.log("Processing overlay:", overlay.name);
-    const filePath = `${basePath}/${overlay.newName}/${overlay.name}.parquet`;
-    const resultPath = `${basePath}/Filtered_${overlay.newName}/${overlay.name}.parquet`;
-    const wardIndexFilePath = `${basePath}/WardIndex/${overlay.newName}_ward_index.parquet`;
-    const hasValidFilters = (overlay.queryValues ?? []).some(
-      (query) => query.value !== null && query.filterCondition !== null
-    );
-
-    const filterConditions =
-      hasValidFilters && overlay.queryValues
-        ? overlay.queryValues
-            .filter(
-              (query) => query.value !== null && query.filterCondition !== null
-            )
-            .map((query) =>
-              getWhereValueQuery(
-                query.field,
-                query.value,
-                query.filterCondition
+      const filterConditions =
+        hasValidFilters && overlay.queryValues
+          ? overlay.queryValues
+              .filter(
+                (query) =>
+                  query.value !== null && query.filterCondition !== null
               )
-            )
-            .join(" AND ")
-        : null;
+              .map((query) =>
+                getWhereValueQuery(
+                  query.field,
+                  query.value,
+                  query.filterCondition
+                )
+              )
+              .join(" AND ")
+          : null;
 
-    const query = `
-      CREATE TEMP TABLE filtered_${overlay.shortName} AS
-      SELECT ${overlay.returnFields.map((field) => `"${field}"`).join(", ")},
-      wi."ward_area_short_code" AS "WARD_AREA_SHORT_CODE"
-      FROM read_parquet('${filePath}') o
-      JOIN read_parquet('${wardIndexFilePath}') wi
-        ON  o."_id" = wi."geometry_id"
-      ${filterConditions ? `WHERE ${filterConditions}` : ""}
-      ORDER BY wi."ward_area_short_code";
-    `;
-    console.log(query);
+      const query = `
+        CREATE TEMP TABLE filtered_${overlay.shortName} AS
+        SELECT ${overlay.returnFields.map((field) => `"${field}"`).join(", ")},
+        wi."ward_area_short_code" AS "WARD_AREA_SHORT_CODE"
+        FROM read_parquet('${filePath}') o
+        JOIN read_parquet('${wardIndexFilePath}') wi
+          ON  o."_id" = wi."geometry_id"
+        ${filterConditions ? `WHERE ${filterConditions}` : ""}
+        ORDER BY wi."ward_area_short_code";
+      `;
+      console.log(query);
 
-    await connection.run(query);
-    const resultCount = await connection.run(`
-        SELECT * FROM filtered_${overlay.shortName}
-    `);
-    const resultRowCount = resultCount.rowCount;
-    const parquetBuffer = await streamQueryToParquetBuffer(
-      `SELECT * FROM filtered_${overlay.shortName}`,
-      resultRowCount
-    );
-    console.log(`Convert parquet buffer to blob`);
-    const parquetBlob = new Blob([parquetBuffer], {
-      type: "application/parquet",
-    });
+      await duckdbLimit(() => connection.run(query));
+      const resultRow = await duckdbLimit(() =>
+        connection.run(`
+          SELECT * FROM filtered_${overlay.shortName}
+      `)
+      );
+      const resultRowCount = resultRow.rowCount;
 
-    await connection.run(`DROP TABLE filtered_${overlay.shortName}`);
+      const parquetBuffer = await duckdbLimit(() =>
+        streamQueryToParquetBuffer(
+          `SELECT * FROM filtered_${overlay.shortName}`,
+          resultRowCount
+        )
+      );
+      console.log(`Convert parquet buffer to blob`);
+      const parquetBlob = new Blob([parquetBuffer], {
+        type: "application/parquet",
+      });
 
-    const HF_file = {
-      path: `${overlay.name}.parquet`,
-      content: parquetBlob,
-    };
-    await uploadFilesToHFDataset(HF_file, `Filtered_${overlay.newName}`);
-    console.log(`Uploaded "${overlay.name}.parquet" to Hugging Face`);
+      await duckdbLimit(() =>
+        connection.run(`DROP TABLE filtered_${overlay.shortName}`)
+      );
 
-    processedFiles.push(resultPath);
-  }
+      const HF_file = {
+        path: `${overlay.name}.parquet`,
+        content: parquetBlob,
+      };
+      await uploadFilesToHFDataset(HF_file, `Filtered_${overlay.newName}`);
+      console.log(`Uploaded "${overlay.name}.parquet" to Hugging Face`);
 
-  return processedFiles;
+      return resultPath;
+    })
+  );
+
+  const results = await Promise.all(tasks);
+  const filteredResult = results.filter(
+    (result) => result !== null
+  ) as Array<string>;
+
+  return filteredResult;
 }
