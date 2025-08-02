@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import { mapPostBodyToOverlayData } from "@/database/overlayConfig.ts";
 import {
   PORT,
   API_AUTH_TOKEN,
@@ -53,17 +52,21 @@ app.post("/filter-properties", async (req, res) => {
         `GitHub API error: ${workflowTriggerResponse.statusText}`
       );
     }
+    //Wait for workflow run to update in workflows/runs endpoint
+    await delay(8000);
     const runId = await getWorkflowRunId();
     console.log("Workflow run ID:", runId);
     let status;
     let conclusion;
     while (status !== "completed") {
-      setTimeout(async () => {
-        const statusResult = await pollWorkflowRunStatus(runId);
-        status = statusResult.status;
-        conclusion = statusResult.conclusion;
-        console.log(`Workflow run status: ${status}`);
-      }, 15000);
+      const statusResult = await pollWorkflowRunStatus(runId);
+      status = statusResult.status;
+      conclusion = statusResult.conclusion;
+      console.log(`Workflow run status: ${status}`);
+
+      if (status !== "completed") {
+        await delay(15000);
+      }
     }
 
     if (conclusion === "failure") throw new Error("Workflow run failed");
@@ -114,4 +117,8 @@ async function pollWorkflowRunStatus(
     status: statusData.status,
     conclusion: statusData.conclusion,
   };
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
