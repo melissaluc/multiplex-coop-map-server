@@ -7,5 +7,6 @@ export const LOCAL_BASE_PATH = process.env.LOCAL_BASE_PATH!;
 export const PORT = process.env.PORT;
 export const basePath = `hf://datasets/ProjectMultiplexCoop`;
 export const INPUT_PAYLOAD = process.env.INPUT_PAYLOAD!;
-export const API_BASE_URL = process.env.API_BASE_URL!;
+export const API_WORKFLOW_BASE_URL = process.env.API_WORKFLOW_BASE_URL!;
+export const API_RUNS_BASE_URL = process.env.API_RUNS_BASE_URL!;
 export const API_AUTH_TOKEN = process.env.API_AUTH_TOKEN!;
