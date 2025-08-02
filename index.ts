@@ -16,17 +16,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/filter-properties", async (req, res) => {
-  const rawBody = req.body;
-
-  if (!rawBody) {
+  const resBody = req.body;
+  if (!resBody) {
     res.status(400).json({ error: "No data provided" });
     return;
   }
 
   try {
-    mapPostBodyToOverlayData(rawBody);
-
-    await fetch(API_BASE_URL, {
+    const rawBody = {
+      inputs: {
+        payload: JSON.stringify(resBody),
+      },
+      ref: "main",
+    };
+    const response = await fetch(API_BASE_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,6 +39,10 @@ app.post("/filter-properties", async (req, res) => {
       },
       body: JSON.stringify(rawBody),
     });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`);
+    }
 
     res.status(200).json({
       message: "Results url generated",
