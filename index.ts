@@ -3,7 +3,7 @@ import cors from "cors";
 import runOverlayAnalysis from "tasks/overlayAnalysis.ts";
 import { getConnection } from "@/database/connection.ts";
 import { mapPostBodyToOverlayData } from "@/database/overlayConfig.ts";
-import { PORT } from "./config.ts";
+import { PORT, API_AUTH_TOKEN, API_BASE_URL } from "./config.ts";
 const app = express();
 const port = PORT;
 const corsOptions = {
@@ -18,19 +18,31 @@ app.get("/", (req, res) => {
 });
 
 app.post("/filter-properties", async (req, res) => {
-  const response = req.body;
-  const connection = await getConnection();
+  const rawBody = req.body;
 
-  mapPostBodyToOverlayData(response);
+  if (!rawBody) {
+    res.status(400).json({ error: "No data provided" });
+    return;
+  }
 
   try {
-    const resultUrl = await runOverlayAnalysis();
+    mapPostBodyToOverlayData(rawBody);
+
+    await fetch(API_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${API_AUTH_TOKEN}`,
+      },
+      body: JSON.stringify(rawBody),
+    });
+
     res.status(200).json({
-      url: resultUrl,
       message: "Results url generated",
     });
   } catch (error: any) {
-    connection.closeSync();
     res.status(500).json({ error: error.message });
   }
 });
