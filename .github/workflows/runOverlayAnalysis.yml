@@ -30,8 +30,3 @@ jobs:
           HF_READ_TOKEN: ${{secrets.HF_READ_TOKEN}}
           HF_USERNAME: ${{secrets.HF_USERNAME}}
           LOCAL_BASE_PATH: ${{secrets.LOCAL_BASE_PATH}}
-      - name: Send POST request response
-        run: |
-          curl -s -X POST https://your-api-endpoint \
-            -H "Content-Type: application/json" \
-            -d '{"message": "success"}'
