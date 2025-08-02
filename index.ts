@@ -1,7 +1,5 @@
 import express from "express";
 import cors from "cors";
-import runOverlayAnalysis from "tasks/overlayAnalysis.ts";
-import { getConnection } from "@/database/connection.ts";
 import { mapPostBodyToOverlayData } from "@/database/overlayConfig.ts";
 import { PORT, API_AUTH_TOKEN, API_BASE_URL } from "./config.ts";
 const app = express();
